@@ -15,32 +15,40 @@ theme:
         previous: 80 # p
         search: 83   # s
 
+social:
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/rs65yQzZ
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/AuditOne_
+    - icon: fontawesome/brands/telegram
+      link: https://t.me/AuditOne
+
 nav:
   - 关于我: about.md
   - MySQL相关:
       - 基础:
-          - setting-up/server/index.md
-          - setting-up/server/network.md
-          - setting-up/server/docker.md
-          - setting-up/server/virtual-appliance.md
-          - setting-up/server/aws.md
-          - setting-up/server/easy-install.md
-          - setting-up/server/dbaas.md
+          - basic/index.md
+          - basic/server/network.md
+          - basic/server/docker.md
+          - basic/server/virtual-appliance.md
+          - basic/server/aws.md
+          - basic/server/easy-install.md
+          - basic/server/dbaas.md
 
       - 高性能:
-          - setting-up/client/index.md
-          - setting-up/client/mysql.md
-          - setting-up/client/mongodb.md
-          - setting-up/client/postgresql.md
-          - setting-up/client/proxysql.md
-          - setting-up/client/aws.md
+          - hp/client/index.md
+          - hp/client/mysql.md
+          - hp/client/mongodb.md
+          - hp/client/postgresql.md
+          - hp/client/proxysql.md
+          - hp/client/aws.md
       - 高可用:
-          - setting-up/client/azure.md
-          - setting-up/client/google.md
-          - setting-up/client/linux.md
-          - setting-up/client/external.md
-          - setting-up/client/haproxy.md
-          - setting-up/client/remote.md
+          - ha/client/azure.md
+          - ha/client/google.md
+          - ha/client/linux.md
+          - ha/client/external.md
+          - ha/client/haproxy.md
+          - ha/client/remote.md
   - Redis相关:
       - using/index.md
       - using/interface.md
@@ -59,4 +67,4 @@ nav:
       - how-to/render-dashboard-images.md
       - how-to/extend-metrics.md
       - how-to/troubleshoot.md
-  - 归档: about.md
+  - 归档: archiver/index.md
