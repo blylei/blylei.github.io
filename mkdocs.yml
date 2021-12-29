@@ -1,7 +1,7 @@
 # MkDocs configuration
 # Used as base - look for .yml files with INHERIT
 site_name: Blylei 的博客
-site_url: "https://blog.frabitech.com/"
+site_url: "https://blog.blylei.tech"
 use_directory_urls: false
 docs_dir: docs/
 # repo_name: blylei/blylei.github.io
