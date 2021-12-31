@@ -20,9 +20,9 @@ theme:
 nav:
   - 关于我: about.md
   - MySQL相关:
-      - 基础: basic/index.md
-      - 高性能: hp/index.md
-      - 高可用: ha/index.md
+      - 基础篇: basic/index.md
+      - 高性能篇: hp/index.md
+      - 高可用篇: ha/index.md
   - Redis相关:
       - 基础:
           - basic/index.md
