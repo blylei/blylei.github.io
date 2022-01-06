@@ -1,3 +1,3 @@
 # MySQL相关
-- [202112](configure.md) via the PMM Settings page.
-- [202201](upgrade.md) PMM Server via the user interface.
+- [MHA部署实践](1.MHA部署实践.md) via the PMM Settings page. 
+- [基于gtid的空事务注入](2.基于gtid的空事务注入.md) via the PMM Settings page. 
