@@ -11,9 +11,9 @@ MySQL DBA
 
 ### 开源项目
 
-- [frabit](https://github.com/frabitech/frabit)
-- [frabit-web](https://github.com/frabitech/frabit-web)
-- [frabit-server](https://github.com/frabitech/frabit-server)
+- [frabit](https://github.com/frabitech/frabit) : MySQL数据库备份工具
+- [frabit-web](https://github.com/frabitech/frabit-web) ：frabit客户端的web管理界面
+- [frabit-server](https://github.com/frabitech/frabit-server) ：frabit服务端的编排器/调度器
 
 ### 工作经历
 
