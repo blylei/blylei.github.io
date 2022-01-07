@@ -9,7 +9,11 @@
 ### 职业规划
 MySQL DBA
 
-[Frabit](https://github.com/frabitech) 系列项目维护者
+### 开源项目
+
+- [frabit](https://github.com/frabitech/frabit)
+- [frabit-web](https://github.com/frabitech/frabit-web)
+- [frabit-server](https://github.com/frabitech/frabit-server)
 
 ### 工作经历
 
