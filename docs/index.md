@@ -25,9 +25,9 @@ Redis相关的博客包含日常的最佳实践、知名博客或者官方手册
 ### MongoDB相关
 MongoDB相关的博客包含日常最佳实践、学习记录、官方手册章节翻译等，可分为以下3类
 
-- [基础篇](mongodb/basic/index.md):
-- [复制集篇](mongodb/rs/index.md):
-- [分片集群](mongodb/sc/index.md):
+- [基础篇](mongodb/basic/index.md): 主要分享MongoDB部署、升级，权限管理、备份恢复等
+- [复制集篇](mongodb/rs/index.md): 主要分享复制集相关的内容；比如复制集的部署、数据初始化、故障诊断等
+- [分片集群](mongodb/sc/index.md): 主要分享分片集群相关的内容；比如分片集群部署，常见部署架构等
 
 ### 已归档
 以自然年为分界线，超过1年的博客会被归档到此处
