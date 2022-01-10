@@ -1,3 +1,8 @@
 # MySQL-高可用篇
-- [202112](configure.md) via the PMM Settings page.
-- [202201](upgrade.md) PMM Server via the user interface.
+[1、MHA部署实践](202112/1.MHA部署实践.md)
+
+[2、基于gtid的空事务注入](202112/2.基于gtid的空事务注入.md)
+
+[3、在线切换gtid模式](202201/1.在线切换gtid模式.md)
+
+[4、重建不一致的Slave](202201/2.重建不一致的Slave.md)
