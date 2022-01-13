@@ -6,7 +6,7 @@
 - 邮箱: blylei@163.com  blylei.info@gmail.com 
 
 ### 职业规划
-MySQL DBA
+MySQL DBA --> 数据库架构师
 
 ### 开源项目
 
