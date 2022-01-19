@@ -34,4 +34,4 @@ MongoDB相关的博客包含日常最佳实践、学习记录、官方手册章�
 
 - [MySQL相关](archiver/index.md)
 - [Redis相关](archiver/index.md)
-- [MongoDB相关](archiver/mongodb/index.md)
+- [MongoDB相关](archiver/index.md)
