@@ -32,6 +32,6 @@ MongoDB相关的博客包含日常最佳实践、学习记录、官方手册章�
 ### 已归档
 以自然年为分界线，超过1年的博客会被归档到此处
 
-- [MySQL相关](archiver/mysql/index.md)
-- [Redis相关](archiver/redis/index.md)
+- [MySQL相关](archiver/index.md)
+- [Redis相关](archiver/index.md)
 - [MongoDB相关](archiver/mongodb/index.md)
