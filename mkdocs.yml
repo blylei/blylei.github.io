@@ -13,6 +13,7 @@ theme:
       - navigation.tabs
       - navigation.tabs.sticky
       - navigation.expand
+      - navigation.top
     locale: zh_CN
     shortcuts:
         help: 191    # ?
