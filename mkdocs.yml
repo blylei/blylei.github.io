@@ -8,14 +8,13 @@ docs_dir: docs/
 # repo_url: https://github.com/blylei/blylei.github.io
 
 theme:
-    name: mkdocs
+    name: material
     locale: zh_CN
     shortcuts:
         help: 191    # ?
         next: 78     # n
         previous: 80 # p
         search: 83   # s
-
 
 nav:
   - 关于我: about.md
