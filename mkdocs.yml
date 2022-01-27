@@ -9,6 +9,8 @@ docs_dir: docs/
 
 theme:
     name: material
+    features:
+      - navigation.tabs
     locale: zh_CN
     shortcuts:
         help: 191    # ?
