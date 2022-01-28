@@ -22,7 +22,7 @@ theme:
         search: 83   # s
 
 nav:
-  - 关于我: about.md
+  - 首页: index.md
   - MySQL相关:
       - 基础篇: mysql/basic/index.md
       - 高性能篇: mysql/hp/index.md
@@ -36,3 +36,4 @@ nav:
       - 复制集: mongodb/rs/index.md
       - 分片集群: mongodb/sc/index.md
   - 已归档: archiver/index.md
+  - 关于我: about.md
