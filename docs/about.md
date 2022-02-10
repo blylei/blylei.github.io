@@ -18,6 +18,7 @@ MySQL DBA --> 数据库架构师
 
 ### 项目经历
 
-### [简历](img/MySQL_DBA.jpg)
-
+### 个人简历
+![简历](img/resume_1.jpg)
+![简历](img/resume_2.jpg)
 
