@@ -37,3 +37,4 @@ nav:
       - 分片集群: mongodb/sc/index.md
   - 已归档: archiver/index.md
   - 关于我: about.md
+  - 个人简历: resume.md
