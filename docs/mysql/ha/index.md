@@ -22,3 +22,7 @@
 [11、MySQL高可用和故障转移的更多想法](202201/9.MySQL高可用和故障转移的更多想法.md)
 
 [12、MySQL主库服务发现方式](202201/10.MySQL主库服务发现方式.md)
+
+[13、MHA-failover流程](202202/1.MHA-failover流程.md)
+
+[14、MHA-switchover流程](202202/2.MHA-switchover流程.md)
