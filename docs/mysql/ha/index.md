@@ -26,3 +26,5 @@
 [13、MHA-failover流程](202202/1.MHA-failover流程.md)
 
 [14、MHA-switchover流程](202202/2.MHA-switchover流程.md)
+
+[15、数据库扩展最佳实践](202202/3.数据库扩展最佳实践.md)
