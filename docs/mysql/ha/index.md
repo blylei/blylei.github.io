@@ -31,4 +31,4 @@
 
 [16、数据库扩展最佳实践-续](202202/4.数据库扩展最佳实践-续.md)
 
-[17、MySQL无损半同步实践](202202/5.MySQL无损半同步实践.md)
+[17、MySQL-semi-sync-replication](202202/5.MySQL-semi-sync-replication.md)
