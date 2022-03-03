@@ -38,3 +38,18 @@ nav:
   - 已归档: archiver/index.md
   - 关于我: about.md
 #  - 个人简历: resume.md
+
+# Customization
+extra:
+  analytics:
+    provider: google
+    property: !ENV GOOGLE_ANALYTICS_KEY
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/blylei
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/blylei1
+    - icon: fontawesome/brands/linkedin
+      link: https://linkedin.com/in/blylei/
+    - icon: fontawesome/brands/weibo
+      link: https://weibo.com/blylei
