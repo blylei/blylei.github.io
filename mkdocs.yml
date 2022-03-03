@@ -20,6 +20,10 @@ theme:
         next: 78     # n
         previous: 80 # p
         search: 83   # s
+    palette:
+      - scheme: default
+        primary: teal
+        accent: teal
 
 nav:
   - 首页: index.md
