@@ -7,23 +7,56 @@ docs_dir: docs/
 # repo_name: blylei/blylei.github.io
 # repo_url: https://github.com/blylei/blylei.github.io
 
+# Configuration
 theme:
-    name: material
-    features:
-      - navigation.tabs
-      - navigation.tabs.sticky
-      - navigation.expand
-      - navigation.top
-    locale: zh_CN
-    shortcuts:
-        help: 191    # ?
-        next: 78     # n
-        previous: 80 # p
-        search: 83   # s
-    palette:
-      - scheme: default
-        primary: teal
-        accent: teal
+  name: null
+  custom_dir: !ENV [THEME_DIR, "material"]
+
+  # Static files
+  static_templates:
+    - 404.html
+
+  # Don't include MkDocs' JavaScript
+  include_search_page: false
+  search_index_only: true
+
+  # Default values, taken from mkdocs_theme.yml
+  language: en
+  features:
+    - content.code.annotate
+    # - content.tabs.link
+    - header.autohide
+    - navigation.expand
+    - navigation.indexes
+    - navigation.instant
+    - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.integrate
+  palette:
+    - scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - scheme: slate
+      primary: cyan
+      accent: cyan
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: assets/favicon.png
+  icon:
+    logo: logo
 
 nav:
   - 首页: index.md
@@ -41,7 +74,7 @@ nav:
       - 分片集群: mongodb/sc/index.md
   - 已归档: archiver/index.md
   - 关于我: about.md
-#  - 个人简历: resume.md
+
 
 # Customization
 extra:
