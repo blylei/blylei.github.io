@@ -4,7 +4,7 @@
 {% extends "overrides/main.html" %}
 {% block content %}
   {{ super() }}
-  <h2 id="__comments">{{ lang.t("评论") }}</h2>
+  <h2 id="__comments">{{ lang.t("meta.评论") }}</h2>
   <script src="https://giscus.app/client.js" data-repo="blylei/blylei.github.io" data-repo-id="R_kgDOGmLMOw" data-category="General" data-category-id="DIC_kwDOGmLMO84CN8YJ" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="1" data-theme="light" data-lang="zh-CN" crossorigin="anonymous" async></script>
   <script>var giscus,palette=__md_get("__palette");palette&&"object"==typeof palette.color&&"slate"===palette.color.scheme&&(giscus=document.querySelector("script[src*=giscus]")).setAttribute("data-theme","dark"),document.addEventListener("DOMContentLoaded",function(){document.querySelector("[data-md-component=palette]").addEventListener("change",function(){var e=__md_get("__palette");e&&"object"==typeof e.color&&(e="slate"===e.color.scheme?"dark":"light",document.querySelector(".giscus-frame").contentWindow.postMessage({giscus:{setConfig:{theme:e}}},"https://giscus.app"))})})</script>
 {% endblock %}
