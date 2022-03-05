@@ -61,14 +61,17 @@ theme:
 nav:
   - 首页: index.md
   - MySQL相关:
+      - mysql/index.md
       - 基础篇: mysql/basic/index.md
       - 高性能篇: mysql/hp/index.md
       - 高可用篇: mysql/ha/index.md
   - Redis相关:
+      - redis/index.md
       - 基础: redis/basic/index.md
       - 哨兵-Sentinel: redis/sentinel/index.md
       - 集群-Cluster: redis/cluster/index.md
   - MongoDB相关:
+      - mongodb/index.md
       - 基础: mongodb/basic/index.md
       - 复制集: mongodb/rs/index.md
       - 分片集群: mongodb/sc/index.md
