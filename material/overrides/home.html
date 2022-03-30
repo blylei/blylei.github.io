@@ -7,7 +7,7 @@
   <style>.md-header{position:initial}.md-main__inner{margin:0}.md-content{display:none}@media screen and (min-width:60em){.md-sidebar--secondary{display:none}}@media screen and (min-width:76.25em){.md-sidebar--primary{display:none}}</style>
   <section class="mdx-container">
     <div class="md-grid md-typeset">
-      <div >
+      <div class="mdx-hero">
         <div class="mdx-hero__content">
           <h1>MySQL相关</h1>
           <p>MySQL相关的博客包含日常的最佳实践、知名博客翻译等,可分为以下3类:</p>
@@ -21,7 +21,10 @@
           <a href="{{ 'insiders/' | url }}" title="Material for MkDocs Insiders" class="md-button">
             快捷跳转
           </a>
-        </div> <br />
+        </div>
+      </div>
+      
+      <div class="mdx-hero">
         <div class="mdx-hero__content">
           <h1>MongoDB相关</h1>
           <p>MongoDB相关的博客包含日常最佳实践、学习记录、官方手册章节翻译等，可分为以下3类:</p>
@@ -37,6 +40,7 @@
           </a>
         </div>
       </div>
+        
     </div>
   </section>
 {% endblock %}
