@@ -16,3 +16,5 @@
 [8、MySQL备份恢复最佳实践](202202/1.MySQL备份恢复最佳实践.md)
 
 [9、MySQL宕机恢复流程](202202/2.MySQL宕机恢复流程.md)
+
+[9、使用jemalloc启动MySQL](202205/1.使用jemalloc启动MySQL.md)
