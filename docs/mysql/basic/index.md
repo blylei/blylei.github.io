@@ -17,6 +17,6 @@
 
 [9、MySQL宕机恢复流程](202202/2.MySQL宕机恢复流程.md)
 
-[9、使用jemalloc启动MySQL](202205/1.使用jemalloc启动MySQL.md)
+[10、使用jemalloc启动MySQL](202205/1.使用jemalloc启动MySQL.md)
 
-[10、不停机重置root密码](202206/1.不停机重置root密码.md)
+[11、不停机重置root密码](202206/1.不停机重置root密码.md)
