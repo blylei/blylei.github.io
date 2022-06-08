@@ -19,4 +19,4 @@
 
 [10、使用jemalloc启动MySQL](202205/1.使用jemalloc启动MySQL.md)
 
-[11、不停机重置root密码](202206/1.不停机重置root密码.md)
+[11、不停机重置MySQL的root密码](202206/1.不停机重置MySQL的root密码.md)
