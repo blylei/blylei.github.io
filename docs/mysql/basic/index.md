@@ -1,5 +1,37 @@
 # MySQL-基础篇
-[1、OSC工作原理](202201/1.OSC工作原理.md)
+
+[@blylei avatar]: https://avatars.githubusercontent.com/u/38288045
+
+## [1、OSC工作原理]
+
+__2021 was a fantastic year for this project as we shipped many new awesome
+features, saw significant user growth and leveraged GitHub Sponsors to make the
+project sustainable.__
+
+<aside class="mdx-author" markdown>
+![@Blylei][@Blylei avatar]
+
+<span>__Blylei__ · @Blylei</span>
+<span>
+:octicons-calendar-24: June 11, 2022 ·
+:octicons-clock-24: 10 min read
+</span>
+</aside>
+
+---
+
+Today, together, MkDocs and Material for MkDocs are among the most popular
+options when it comes to choosing a static site generator and theme for your
+technical documentation project. Material for MkDocs ensures that your
+content is always perfectly presented to your audience, regardless of screen
+resolution or device capabilities. It has evolved to a framework for technical
+writing, offering many features, some of which are yet to be found in other
+static site generators. However, we're far from the end, as 2022 is going to
+bring some interesting new capabilities.
+
+  [:octicons-arrow-right-24: Continue reading][1、OSC工作原理]
+
+  [1、OSC工作原理](202201/1.OSC工作原理.md)
 
 [2、基于MySQL的PITR最佳实践](202201/2.基于MySQL的PITR最佳实践.md)
 
