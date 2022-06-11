@@ -1,6 +1,5 @@
 # MySQL-基础篇
 
-[@blylei avatar]: https://avatars.githubusercontent.com/u/38288045
 
 ## [1、OSC工作原理]
 
@@ -17,6 +16,8 @@ project sustainable.__
 :octicons-clock-24: 10 min read
 </span>
 </aside>
+
+[@blylei avatar]: https://avatars.githubusercontent.com/u/38288045
 
 ---
 
