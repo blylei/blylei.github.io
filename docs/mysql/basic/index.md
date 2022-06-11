@@ -8,8 +8,7 @@ features, saw significant user growth and leveraged GitHub Sponsors to make the
 project sustainable.__
 
 <aside class="mdx-author" markdown>
-
-![@Blylei][@Blylei avatar]
+ ![@Blylei][@Blylei avatar]
 
 <span>__Blylei__ · @Blylei</span>
 <span>
