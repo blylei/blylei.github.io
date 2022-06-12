@@ -8,8 +8,7 @@ features, saw significant user growth and leveraged GitHub Sponsors to make the
 project sustainable.__
 
 <aside class="mdx-author" markdown>
- ![@Blylei][@Blylei avatar]
-
+![@Blylei][@Blylei avatar]
 <span>__Blylei__ · @Blylei</span>
 <span>
 :octicons-calendar-24: June 11, 2022 ·
@@ -30,7 +29,7 @@ writing, offering many features, some of which are yet to be found in other
 static site generators. However, we're far from the end, as 2022 is going to
 bring some interesting new capabilities.
 
-  [:octicons-arrow-right-24: Continue reading][1、OSC工作原理]
+  [:octicons-arrow-right-24: Continue reading] [1、OSC工作原理]
 
   [1、OSC工作原理](202201/1.OSC工作原理.md)
 
