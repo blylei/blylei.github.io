@@ -52,3 +52,5 @@ bring some interesting new capabilities.
 [10、使用jemalloc启动MySQL](202205/1.使用jemalloc启动MySQL.md)
 
 [11、不停机重置MySQL的root密码](202206/1.不停机重置MySQL的root密码.md)
+
+[12、MySQL快速删除大表](202209/1.MySQL快速删除大表.md)
