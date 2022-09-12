@@ -29,9 +29,9 @@ writing, offering many features, some of which are yet to be found in other
 static site generators. However, we're far from the end, as 2022 is going to
 bring some interesting new capabilities.
 
-  [:octicons-arrow-right-24: Continue reading] [1、OSC工作原理]
+[:octicons-arrow-right-24: Continue reading] [1、OSC工作原理]
 
-  [1、OSC工作原理](202201/1.OSC工作原理.md)
+[1、OSC工作原理](202201/1.OSC工作原理.md)
 
 [2、基于MySQL的PITR最佳实践](202201/2.基于MySQL的PITR最佳实践.md)
 
