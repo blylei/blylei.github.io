@@ -1,3 +1,3 @@
-![](img/pat.jpg)
+![resume](img/pat.jpg)
 
 
