@@ -1,3 +1,3 @@
-![mysql升级流程](./img/pat.jpg)
+![](img/pat.jpg)
 
 
