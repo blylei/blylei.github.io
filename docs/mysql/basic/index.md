@@ -55,3 +55,5 @@ bring some interesting new capabilities.
 [11、不停机重置MySQL的root密码](202206/1.不停机重置MySQL的root密码.md)
 
 [12、MySQL快速删除大表](202209/1.MySQL快速删除大表.md)
+
+[13、Xtrabackup流式备份最佳实践](202303/1.Xtrabackup流式备份最佳实践.md)
