@@ -1,0 +1,889 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="How we rebuilt client-side search, delivering a better user experience while making it faster and smaller at the same time
+">
+      
+      
+      
+        <link rel="canonical" href="https://blog.blylei.tech/mysql/ha/202202/5.MySQL-semi-sync-replication.html">
+      
+      <link rel="icon" href="../../../assets/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.1.8">
+    
+    
+      
+        <title>MySQL semi-sync replication: durability, consistency and split brains - Blylei 的博客</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.2b4465f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.e6a45f82.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+
+
+    
+    
+  <link rel="stylesheet" href="../../../overrides/assets/stylesheets/main.d9227bb8.min.css">
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mysql-semi-sync-replication-durability-consistency-and-split-brains" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../index.html" title="Blylei 的博客" class="md-header__button md-logo" aria-label="Blylei 的博客" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 89 89">
+  <path d="M3.136,17.387l0,42.932l42.932,21.467l-42.932,-64.399Z" />
+  <path d="M21.91,8l42.933,64.398l-18.775,9.388l-42.932,-64.399l18.774,-9.387Z" style="fill-opacity: 0.5" />
+  <path d="M67.535,17.387l-27.262,18.156l21.878,32.818l5.384,2.691l0,-53.665Z" />
+  <path d="M67.535,17.387l0,53.666l18.774,-9.388l0,-53.665l-18.774,9.387Z" style="fill-opacity: 0.25" />
+</svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Blylei 的博客
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MySQL semi-sync replication: durability, consistency and split brains
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../../index.html" class="md-tabs__link">
+      首页
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.html" class="md-tabs__link">
+        MySQL相关
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../redis/index.html" class="md-tabs__link">
+        Redis相关
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../mongodb/index.html" class="md-tabs__link">
+        MongoDB相关
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../../archiver/index.html" class="md-tabs__link">
+      已归档
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../../about.html" class="md-tabs__link">
+      关于我
+    </a>
+  </li>
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../index.html" title="Blylei 的博客" class="md-nav__button md-logo" aria-label="Blylei 的博客" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 89 89">
+  <path d="M3.136,17.387l0,42.932l42.932,21.467l-42.932,-64.399Z" />
+  <path d="M21.91,8l42.933,64.398l-18.775,9.388l-42.932,-64.399l18.774,-9.387Z" style="fill-opacity: 0.5" />
+  <path d="M67.535,17.387l-27.262,18.156l21.878,32.818l5.384,2.691l0,-53.665Z" />
+  <path d="M67.535,17.387l0,53.666l18.774,-9.388l0,-53.665l-18.774,9.387Z" style="fill-opacity: 0.25" />
+</svg>
+
+    </a>
+    Blylei 的博客
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.html" class="md-nav__link">
+        首页
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" data-md-state="indeterminate" type="checkbox" id="__nav_2" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+            
+          
+        
+          
+            
+          
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../index.html">MySQL相关</a>
+          
+            <label for="__nav_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="MySQL相关" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          MySQL相关
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basic/index.html" class="md-nav__link">
+        基础篇
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hp/index.html" class="md-nav__link">
+        高性能篇
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        高可用篇
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" data-md-state="indeterminate" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+            
+          
+        
+          
+            
+          
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../../redis/index.html">Redis相关</a>
+          
+            <label for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="Redis相关" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Redis相关
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../redis/basic/index.html" class="md-nav__link">
+        基础
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../redis/sentinel/index.html" class="md-nav__link">
+        哨兵-Sentinel
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../redis/cluster/index.html" class="md-nav__link">
+        集群-Cluster
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" data-md-state="indeterminate" type="checkbox" id="__nav_4" checked>
+      
+      
+      
+        
+          
+            
+          
+        
+          
+            
+          
+        
+          
+            
+          
+        
+          
+            
+          
+        
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../../mongodb/index.html">MongoDB相关</a>
+          
+            <label for="__nav_4">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="MongoDB相关" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          MongoDB相关
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../mongodb/basic/index.html" class="md-nav__link">
+        基础
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../mongodb/rs/index.html" class="md-nav__link">
+        复制集
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../mongodb/sc/index.html" class="md-nav__link">
+        分片集群
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../archiver/index.html" class="md-nav__link">
+        已归档
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../about.html" class="md-nav__link">
+        关于我
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+  
+                
+
+<h1 id="mysql-semi-sync-replication-durability-consistency-and-split-brains">MySQL semi-sync replication: durability, consistency and split brains<a class="headerlink" href="#mysql-semi-sync-replication-durability-consistency-and-split-brains" title="Permanent link">&para;</a></h1>
+<p>文章来自Plantscale博客平台，<a href="https://planetscale.com/blog/mysql-semi-sync-replication-durability-consistency-and-split-brains">单击查看原文</a></p>
+<p>MySQL semi-sync is a plugin mechanism on top of asynchronous replication, that can offer better durability and even consistency (term defined later). 
+It helps in high availability solutions, but can in itself reduce availability. We look at some basics and follow up to present scenarios that require 
+higher level intervention to ensure availability and to avoid split brains from taking place.</p>
+<p>I recommend reading this <a href="https://www.percona.com/community-blog/2018/08/23/question-about-semi-synchronous-replication-answer-with-all-the-details/">semi-sync blog post</a> by Jean-François Gagné (aka JFG), which illustrates the internals of the semi-sync implementation, and 
+debunks some myths about semi-sync. We will overlap a bit with another recommended post by JFG, about <a href="https://jfg-mysql.blogspot.com/2019/02/mysql-master-high-availability-and-failover-more-thoughts.html">high availability and recovery</a>.</p>
+<p>Note: in this post we adopt the term “primary” over the term “master” in the context of MySQL replication. However, at this time there is no alternative 
+to using the actual names of some configuration and status variables that use “master” terminology, and some duality is present.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>As quick recap, semi-synchronous replication is a mechanism where a commit on the primary does not apply the change onto internal table data and does not 
+respond to the user, until the changelog is guaranteed to have been persisted (though not necessarily applied) on a preconfigured number of replicas. We 
+limit our discussion to MySQL 5.7 or equivalent.</p>
+<p>Specifically, the primary is configured with rpl_semi_sync_master_wait_for_slave_count, which is 1 or above, if semi-sync is to be used. An INSERT transaction, 
+for example, will not report being committed (i.e. the user will not get “OK”) until at least that number of replicas have acknowledged receipt of that transaction’s 
+changelog (entries in the binary log). In practice, this means at least that number of replicas have written the changelog onto their relay logs where the change is 
+now persisted. The replicas will apply the change later on, normally as soon as they can. For the scope of this post, we assume replicas are not intentionally stopped, 
+and we can also ignore delayed replicas.</p>
+<p>The primary waits up to rpl_semi_sync_master_timeout, after which it falls back to asynchronous replication mode, committing and responding to the user even if not all 
+expected replicas have acknowledged receipt. In the scope of this post, we are interested in an “infinite” timeout, which we will accept to be a very large number.</p>
+<p>The only replicas to acknowledge receipt of the changelog are replicas where semi-sync is enabled. There could be other, non semi-sync replicas in our topology. 
+They, too, pull the changelog from the primary, but do not acknowledge receipt. As JFG points out in his post, the semi-sync replicas aren’t necessarily the most up 
+to date. It’s possible that a non-semi-sync replica has pulled more changelog data than some or all semi-sync replicas.</p>
+<h2 id="durability">Durability<a class="headerlink" href="#durability" title="Permanent link">&para;</a></h2>
+<p>The most straightforward use case for semi-sync is to guarantee durability of the data. We only approve a commit once the transaction (in the form of a changelog) 
+is persisted elsewhere, on a different server, or on multiple servers.</p>
+<p>As mentioned earlier, this does not mean the changelog has been applied on those servers. Replication may be lagging and the servers may be too busy to be able to 
+apply the changelog in a timely fashion. But, at the very least, if the primary crashes, there’s “forensic evidence” in the relay logs of a semi-sync replica that can tell us what the latest changes were.</p>
+<h2 id="consistency">Consistency<a class="headerlink" href="#consistency" title="Permanent link">&para;</a></h2>
+<p>The term “consistency” is overloaded, and especially in distributed systems. The CAP Theorem definition of consistency is, for example, very strict: once data was written on one server, 
+any immediate follow-up read on any other server must reflect that write (or any later write).</p>
+<p>We will suffice with eventual consistency. This in itself an overloaded term, so let’s clarify: in the case of a primary outage, we consider our system consistent if we’re able to promote 
+a new primary within any amount of time (obviously in practice we expect the time to be short) such that it is consistent with the previous primary’s advertised state. I write “advertised” 
+state because the end user or applications should not be surprised by any data changes when the new primary is promoted, regardless of how transactions/replication work internally.</p>
+<h2 id="split-brain">Split brain<a class="headerlink" href="#split-brain" title="Permanent link">&para;</a></h2>
+<p>A split brain is a situation where there are two servers which are simultaneously taking writes, each thinking they’re the (single) primary. In a split brain scenario the data diverges between 
+the two servers. If those servers also have replicas, then we have two divergent replication trees. Fixing and merging those divergent trees is difficult, and normally we revert the changes on 
+one to make it look like the other (whether by backup+restore or by some rollback method).</p>
+<p>Reiterating JFG’s observation that while engineers normally frown upon split brains, the damage of split brain may well be within a product’s allowance.</p>
+<p>Topologies and scenarios</p>
+<p>As always, getting best durability as possible, best consistency as possible, best response times as possible, best split brain mitigation as possible, 
+is costly. Product owners and engineers make reasonable tradeoffs.</p>
+<p>Let’s consider a few configured topologies, and see what scenarios we can expect upon failure. In particular, how durable our data is, can we expect it 
+to be consistent, and can we expect split brains.</p>
+<h2 id="general-scenario-wait-for-single-replica-multiple-semi-sync-replicas">General scenario: wait for single replica, multiple semi-sync replicas<a class="headerlink" href="#general-scenario-wait-for-single-replica-multiple-semi-sync-replicas" title="Permanent link">&para;</a></h2>
+<p>In this common scenario our primary is configured with rpl_semi_sync_master_wait_for_slave_count=1, and there are multiple (more than one) replicas configured 
+with semi-sync. Let’s say there are 4 semi-sync replicas, named R1, R2, R3, and R4. We nickname this setup “1-n”</p>
+<p>In this setup, a write takes place on the primary, and before approving the write to the user/app, the primary waits for an acknowledgement from exactly one replica.
+It doesn’t matter which. For some writes, it will be replica R1; at some other time, R4 is the first to acknowledge.</p>
+<p>It’s important to note that the changelog, the binary log, is sequential. A replica that acknowledges some changelog event, has necessarily received all of its prior events. 
+This is why the primary doesn’t need to care that different acknowledgements come from different replicas. An acknowledgement means there’s a replica with full durability of 
+committed transactions up to and including the one in question.</p>
+<p>Should the primary fail, we have at least one replica guaranteed to have all approved commits in its relay logs. These are not necessarily applied, but if our replication cluster 
+is normally low-lagged, we can expect those commits to be few, and we can expect the replica to catch up (apply those commits) within a few seconds or less.</p>
+<p>A possible situation is that there may be non-semi-sync replicas even more up to date than our semi-sync replica. We can choose to use them. The fact they have more transactions than 
+the most up-to-date semi sync replica means they have received binary log events not acknowledged by a semi-sync replica. While this may seem confusing at first, these are fine to accept, 
+and do not contradict our promise to our users. We promised that “if the primary tells you a commit is successful, then the data is durable elsewhere”. We never said anything about the state 
+of the data before telling the user the commit is successful. In fact, this scenario is no different than the primary actually getting a commit acknowledged by the replica, begins to communicate 
+that to the user, then crashing halfway. The user cannot distinguish between the two cases at the time of failure (though post crash analysis may indicate which of the two was true).</p>
+<p>And so we can choose to use the data from that even-more-up-to-date non-semi-sync replica, seed the rest of the replicas with that data, or, we can choose to throw away any server that is 
+more-up-to-date than our most-up-to-date semi-sync replica and recycle them. It’s our choice and it’s down to operational considerations (time, capacity, load, ...).</p>
+<h3 id="if-data-is-durable-does-that-mean-its-available">If data is durable, does that mean it’s available?<a class="headerlink" href="#if-data-is-durable-does-that-mean-its-available" title="Permanent link">&para;</a></h3>
+<p>Not necessarily. Consider this possible, even likely scenario: the primary and R1 are both in the same data center. R2, R3, R4 are in different availability zones, possibly remote, and so 
+have higher latency than R1 communicating to the primary.</p>
+<p>The app issues an UPDATE on the primary. R1 acknowledges the write. R2, R3, R4 do not, as yet. But the primary does not care, it commits and reports success to the app. Then the primary and 
+R1 both get network isolated together because the DC they’re in has lost network. The loss of network cut short the delivery of the change log to R2, R3, R4. They never got it.</p>
+<p>Should we promote either R2, R3, or R4, we lose consistency. The app expects the result of that UPDATE to be there, but neither of these servers have the data. Moreover, even human intervention 
+is limited. Since the data is only found on primary and R1, we cannot get hold of the data. A human can always transport to the physical server to extract the data and send it over via cellular 
+network, or even by car. It’s likely that this will take substantial time.</p>
+<p>A predefined failover plan may choose to promote, say, R2, after all, losing some data, but cutting short on outage time. Reconciliation will have to take place afterwards.</p>
+<h3 id="do-we-even-know-the-status">Do we even know the status?<a class="headerlink" href="#do-we-even-know-the-status" title="Permanent link">&para;</a></h3>
+<p>If the primary and one of the semi-sync replicas go offline, we have an additional problem: we can’t say for sure whether any of the remaining semi-sync replicas got the latest updates from the primary. 
+It’s possible that they did. But it’s also possible that the single semi-sync replica that went offline, was the single one to get and acknowledge some last writes taking place on the primary.</p>
+<p>To generalize, if the number of lost semi-sync replicas is equal to, or greater than rpl_semi_sync_master_wait_for_slave_count, then we do not know whether the remaining replicas are consistent.</p>
+<h3 id="split-brain_1">Split brain<a class="headerlink" href="#split-brain_1" title="Permanent link">&para;</a></h3>
+<p>But, arguably worse, is that we can now be in a split brain situation. Apps in the primary datacenter were still writing to the old primary when the network went down. Those writes continued to run. 
+The old primary now receives writes never seen by R2 (the newly promoted primary). Once we do wish to reconcile, we are faced with contradicting information.</p>
+<h2 id="physical-locations">Physical locations<a class="headerlink" href="#physical-locations" title="Permanent link">&para;</a></h2>
+<p>The geo-distribution of our servers plays a key part in how tolerant our system is for failure and what outcomes we can expect.</p>
+<h3 id="colocated-primary-and-semi-sync-replicas">Colocated primary and semi-sync replicas<a class="headerlink" href="#colocated-primary-and-semi-sync-replicas" title="Permanent link">&para;</a></h3>
+<p>On a normal day, writes to the primary have low latency: acknowledgements from semi-sync replicas are quick to arrive thanks to the fast network within a datacenter.</p>
+<p>When the primary fails, we have at least one good semi-sync replica to promote (or we can use it to seed a different server to promote). Because we promote within the same datacenter, app behavior is 
+unlikely to be affected, other than the obvious disruption during the failover time.</p>
+<p>If the datacenter is network-isolated, we need to make a decision: wait out the outage, incurring downtime to our services, or promote a new primary in another datacenter. We risk losing transactions 
+(we cannot know whether we lose transactions until we are again able to connect to the original primary). We also risk a split brain scenario.</p>
+<h3 id="cross-site-semi-sync-replication">Cross-site semi-sync replication<a class="headerlink" href="#cross-site-semi-sync-replication" title="Permanent link">&para;</a></h3>
+<p>If we only run semi-sync replicas in a different datacenter than the primary’s, we first pay with increased write latency, as each commit runs a roundtrip outside the primary’s datacenter and back. 
+With multiple semi-sync replicas it’s the time it takes for the fastest replica to respond.</p>
+<p>When the primary goes down, we have the data durable outside its datacenter. But we can then also compare with non semi-sync replicas in the primary’s datacenter: they may yet have all the transactions, too, 
+in which case we can promote one of them. Again, promoting within the same datacenter tends to be less disruptive to the application. Or, we can spend some time seeding them from one of our semi-sync replicas.</p>
+<p>Or, we can choose to promote our semi-sync replicas, switching the primary data center for the replication cluster. We then must reassign semi-sync replicas, and ensure none run from within the new primary’s datacenter.</p>
+<p>In the event of the primary’s datacenter network isolation, we promote one of our semi-sync replicas, in a different DC. We reconfigure semi-sync replicas, before making the new primary writable. This avoids a split brain 
+scenario, assuming all of our semi-sync replicas are available to us.</p>
+<h2 id="what-if-two-or-more-sites-get-network-isolated-at-the-same-time">What if two or more sites get network isolated at the same time?<a class="headerlink" href="#what-if-two-or-more-sites-get-network-isolated-at-the-same-time" title="Permanent link">&para;</a></h2>
+<p>It largely depends on your hardware distribution.</p>
+<p>If your servers are distributed across three sites, then the majority of your sites is now down. Chances are you were only planning for single site outage at any given time, and a two-site outage is a hard downtime for you. 
+You may or may not have the capacity to run with just one third of your hardware. You’d need to risk consistency and split brain.</p>
+<p>Let’s assume we run out of 5 different sites (or availability zones), and 2 are down. In our “1-n” setup, split brain is still possible, even though the majority of sites are up. That’s because our semi-sync setup is about 
+the communication between a primary and any of its replicas.</p>
+<p>But this is also something you can attach a number to. What is the probability of two availability zones going down at the same time? For a given vendor? Cross vendors? Is there a number you’re willing to accept? What is the 
+probability of the two zones being in outage both over X minutes? Will you be willing to wait out X minutes to maintain durability and consistency?</p>
+<p>In our physical world, there is no hard limitation to how many sites could go down at the same time. We’re generally willing to accept that some risks are so low that we can accept them.</p>
+<h2 id="quorum">Quorum<a class="headerlink" href="#quorum" title="Permanent link">&para;</a></h2>
+<p>Of special interest is that in our “1-n” scenario, we have a quorum of two servers out of five or more. The primary, with a single additional replica, are able to form a quorum and to accept writes. That’s how we got to have a split brain. 
+While R2, R3, R4 form a majority of the servers, writes took place without their agreement.</p>
+<p>People familiar with Paxos and Raft consensus protocols may find this baffling. However, reliable minority consensus is achievable, and Sugu Sougoumarane’s Consensus Algorithms series of posts continues to describe this</p>
+
+              
+  <h2 id="__comments"></h2>
+  <script src="https://giscus.app/client.js" data-repo="blylei/blylei.github.io" data-repo-id="R_kgDOGmLMOw" data-category="General" data-category-id="DIC_kwDOGmLMO84CN8YJ" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="1" data-theme="light" data-lang="zh-CN" crossorigin="anonymous" async></script>
+  <script>var giscus,palette=__md_get("__palette");palette&&"object"==typeof palette.color&&"slate"===palette.color.scheme&&(giscus=document.querySelector("script[src*=giscus]")).setAttribute("data-theme","dark"),document.addEventListener("DOMContentLoaded",function(){document.querySelector("[data-md-component=palette]").addEventListener("change",function(){var e=__md_get("__palette");e&&"object"==typeof e.color&&(e="slate"===e.color.scheme?"dark":"light",document.querySelector(".giscus-frame").contentWindow.postMessage({giscus:{setConfig:{theme:e}}},"https://giscus.app"))})})</script>
+
+            </article>
+          </div>
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/blylei" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/blylei1" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+    
+    
+      
+      
+    
+    <a href="https://linkedin.com/in/blylei/" target="_blank" rel="noopener" title="linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+    </a>
+  
+    
+    
+      
+      
+    
+    <a href="https://weibo.com/blylei" target="_blank" rel="noopener" title="weibo.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M407 177.6c7.6-24-13.4-46.8-37.4-41.7-22 4.8-28.8-28.1-7.1-32.8 50.1-10.9 92.3 37.1 76.5 84.8-6.8 21.2-38.8 10.8-32-10.3zM214.8 446.7C108.5 446.7 0 395.3 0 310.4c0-44.3 28-95.4 76.3-143.7C176 67 279.5 65.8 249.9 161c-4 13.1 12.3 5.7 12.3 6 79.5-33.6 140.5-16.8 114 51.4-3.7 9.4 1.1 10.9 8.3 13.1 135.7 42.3 34.8 215.2-169.7 215.2zm143.7-146.3c-5.4-55.7-78.5-94-163.4-85.7-84.8 8.6-148.8 60.3-143.4 116s78.5 94 163.4 85.7c84.8-8.6 148.8-60.3 143.4-116zM347.9 35.1c-25.9 5.6-16.8 43.7 8.3 38.3 72.3-15.2 134.8 52.8 111.7 124-7.4 24.2 29.1 37 37.4 12 31.9-99.8-55.1-195.9-157.4-174.3zm-78.5 311c-17.1 38.8-66.8 60-109.1 46.3-40.8-13.1-58-53.4-40.3-89.7 17.7-35.4 63.1-55.4 103.4-45.1 42 10.8 63.1 50.2 46 88.5zm-86.3-30c-12.9-5.4-30 .3-38 12.9-8.3 12.9-4.3 28 8.6 34 13.1 6 30.8.3 39.1-12.9 8-13.1 3.7-28.3-9.7-34zm32.6-13.4c-5.1-1.7-11.4.6-14.3 5.4-2.9 5.1-1.4 10.6 3.7 12.9 5.1 2 11.7-.3 14.6-5.4 2.8-5.2 1.1-10.9-4-12.9z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "header.autohide", "navigation.expand", "navigation.indexes", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.22074ed6.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+  
+      <script src="../../../assets/javascripts/bundle.960e086b.min.js"></script>
+      
+    
+  <script src="../../../overrides/assets/javascripts/bundle.752f5537.min.js"></script>
+
+  </body>
+</html>
